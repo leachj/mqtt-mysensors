@@ -6,7 +6,7 @@ require 'mqtt'
 
 
 #params for serial port
-port_str = "/dev/tty.usbmodem1421"  #may be different for you
+port_str = "/dev/ttyACM0"  #may be different for you
 baud_rate = 115200
 data_bits = 8
 stop_bits = 1
@@ -60,16 +60,15 @@ def processLine(sp, c, line)
 	nodeId, sensorId, messageType, ack, subType, payload = line.split(';')
 	case messageType.to_i
 		when MESSAGE_TYPE_SET
-			message = "Set message: #{nodeId} #{payload}"
-                	puts message
-                	c.publish('mysensors-data', message)
+			message = "#{nodeId} #{sensorId} #{payload}"
+                	c.publish('mysensors-event', message)
 		when MESSAGE_TYPE_INTERNAL
 			processInternal(sp,subType, payload)		
 	end
 end
 
 
-MQTT::Client.connect('localhost') do |c|
+MQTT::Client.connect('192.168.1.70') do |c|
 
 #just read forever
 while true do
